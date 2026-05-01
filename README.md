@@ -86,32 +86,6 @@ docker compose exec app php artisan storage:link
 
 Visit `http://localhost:8085`
 
-## Project Structure
-
-.
-├── docker-compose.yml
-├── docker/
-│   ├── php/Dockerfile
-│   └── nginx/default.conf
-└── src/                              # Laravel application
-├── app/
-│   ├── Http/Controllers/
-│   │   └── PostController.php    # Blog + admin CRUD
-│   └── Models/
-│       └── Post.php              # SoftDeletes, markdown renderer, scopes
-├── database/migrations/
-├── resources/views/
-│   ├── layouts/
-│   │   └── app.blade.php         # Shared layout (DRY)
-│   ├── blog/                     # Public blog views
-│   │   ├── index.blade.php
-│   │   └── show.blade.php
-│   └── admin/posts/              # Admin views
-│       ├── index.blade.php
-│       ├── create.blade.php
-│       └── edit.blade.php
-└── routes/web.php
-
 ## Deployment
 
 Deployed on a self-hosted Orange Pi 4 Pro homelab:
