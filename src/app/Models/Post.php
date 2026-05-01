@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use League\CommonMark\CommonMarkConverter;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use HasFactory;
+
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id', 'title', 'slug', 'content',
@@ -34,4 +37,14 @@ class Post extends Model
                      ->whereNotNull('published_at')
                      ->orderByDesc('published_at');
     }
+
+   public function getRenderedContentAttribute(): string
+    {
+    $converter = new CommonMarkConverter([
+        'html_input' => 'strip',
+        'allow_unsafe_links' => false,
+    ]);
+    return $converter->convert($this->content)->getContent();
+    }
+
 }

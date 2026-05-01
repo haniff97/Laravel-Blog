@@ -1,58 +1,127 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Blog Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A self-hosted, production-grade blog platform built with Laravel 13, deployed on an Orange Pi 4 Pro homelab with GCP as a reverse proxy.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 13, PHP 8.4 |
+| Frontend | Blade, Tailwind CSS, Vite |
+| Database | MariaDB |
+| Cache/Session | Redis |
+| Markdown | league/commonmark |
+| Auth | Laravel Breeze |
+| Infrastructure | Docker, Nginx, Orange Pi 4 Pro (ARM64) |
+| Networking | GCP e2-micro (reverse proxy), Tailscale VPN |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Architecture
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Internet → GCP Nginx (reverse proxy) → Tailscale → Orange Pi :8085 → Docker (Nginx → PHP-FPM → Laravel)
 
-## Learning Laravel
+## Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- 📝 Create, edit, delete blog posts
+- 📄 Markdown support (headings, bold, code blocks, lists)
+- 🔐 Admin authentication (Laravel Breeze)
+- 🌓 Dark mode support
+- 📱 Responsive design
+- 📦 Draft / Published post status
+- 🗑️ Soft deletes (posts go to trash, not permanently deleted)
+- ⚡ Redis caching on public routes
+- 🔒 Authorization (users can only edit their own posts)
+- 🗄️ Database indexes on slug, status, published_at, user_id
+- 🔄 DB transactions on write operations
+- 🚫 N+1 query prevention via eager loading
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Core Principles Applied
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| Principle | Implementation |
+|---|---|
+| DRY | Shared Blade layout (`layouts/app.blade.php`) |
+| SOLID | Single responsibility — PostController handles HTTP only |
+| Security | CSRF, authorization checks, input validation |
+| REST | Proper HTTP verbs (GET, POST, PUT, DELETE) |
+| N+1 Prevention | Eager loading with `with('user')` |
+| DB Indexing | Indexes on frequently queried columns |
+| Caching | Redis cache on public post listing and single post |
+| Transactions | DB::transaction() on store and update |
+| Soft Deletes | SoftDeletes trait on Post model |
 
-## Agentic Development
+## Local Development Setup
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Prerequisites
+
+- Docker & Docker Compose
+- Git
+
+### Steps
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clone the repo
+git clone https://github.com/haniff97/Laravel-Blog.git
+cd Laravel-Blog
 
-php artisan boost:install
+# 2. Create env file and fill in values
+cp src/.env.example src/.env
+
+# 3. Create NVMe storage directories (or regular dirs for local dev)
+mkdir -p storage/app/public
+mkdir -p storage/framework/{cache/data,sessions,views}
+mkdir -p storage/logs
+
+# 4. Build and start containers
+docker compose up -d --build
+
+# 5. Install dependencies
+docker compose exec app composer install
+docker compose exec app npm install
+docker compose exec app npm run build
+
+# 6. Generate key and migrate
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+docker compose exec app php artisan storage:link
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Visit `http://localhost:8085`
 
-## Contributing
+## Project Structure
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+.
+├── docker-compose.yml
+├── docker/
+│   ├── php/Dockerfile
+│   └── nginx/default.conf
+└── src/                              # Laravel application
+├── app/
+│   ├── Http/Controllers/
+│   │   └── PostController.php    # Blog + admin CRUD
+│   └── Models/
+│       └── Post.php              # SoftDeletes, markdown renderer, scopes
+├── database/migrations/
+├── resources/views/
+│   ├── layouts/
+│   │   └── app.blade.php         # Shared layout (DRY)
+│   ├── blog/                     # Public blog views
+│   │   ├── index.blade.php
+│   │   └── show.blade.php
+│   └── admin/posts/              # Admin views
+│       ├── index.blade.php
+│       ├── create.blade.php
+│       └── edit.blade.php
+└── routes/web.php
 
-## Code of Conduct
+## Deployment
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Deployed on a self-hosted Orange Pi 4 Pro homelab:
 
-## Security Vulnerabilities
+- All persistent data stored on NVMe at `/mnt/nvme/`
+- Exposed via GCP e2-micro reverse proxy over Tailscale VPN
+- SSL via Let's Encrypt (Certbot)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Author
 
-## License
+**Haniff** — [GitHub](https://github.com/haniff97)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
