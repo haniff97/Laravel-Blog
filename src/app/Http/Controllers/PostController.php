@@ -22,9 +22,7 @@ class PostController extends Controller
     public function show(Post $post)
     {
         abort_if($post->status !== 'published', 404);
-        $post = Cache::remember('posts.show.' . $post->slug, 300, function () use ($post) {
-            return $post->load('user');
-        });
+        $post->load('user');
         return view('blog.show', compact('post'));
     }
 
