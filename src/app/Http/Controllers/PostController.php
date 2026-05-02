@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -55,8 +54,6 @@ class PostController extends Controller
             Post::create($validated);
         });
 
-        $this->clearPostCache();
-
         return redirect()->route('admin.posts.index')->with('success', 'Post created!');
     }
 
@@ -85,8 +82,6 @@ class PostController extends Controller
             $post->update($validated);
         });
 
-        $this->clearPostCache($post->slug);
-
         return redirect()->route('admin.posts.index')->with('success', 'Post updated!');
     }
 
@@ -97,16 +92,7 @@ class PostController extends Controller
         $slug = $post->slug;
         $post->delete();
 
-        $this->clearPostCache($slug);
-
         return redirect()->route('admin.posts.index')->with('success', 'Post deleted!');
     }
 
-    private function clearPostCache(?string $slug = null): void
-    {
-        Cache::forget('posts.index.1');
-        if ($slug) {
-            Cache::forget('posts.show.' . $slug);
-        }
-    }
 }
