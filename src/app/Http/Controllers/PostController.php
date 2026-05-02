@@ -13,9 +13,19 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Cache::remember('posts.index.' . request('page', 1), 300, function () {
-            return Post::published()->with('user')->paginate(9);
+        $page = request('page', 1);
+        $posts = Cache::remember('posts.index.' . $page, 300, function () {
+            return Post::published()->with('user')->get();
         });
+
+        $posts = new \Illuminate\Pagination\LengthAwarePaginator(
+            $posts->forPage(request('page', 1), 9),
+            $posts->count(),
+            9,
+            request('page', 1),
+            ['path' => request()->url()]
+        );
+
         return view('blog.index', compact('posts'));
     }
 
