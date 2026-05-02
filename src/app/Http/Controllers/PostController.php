@@ -13,9 +13,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Cache::remember('posts.index.' . request('page', 1), 300, function () {
-            return Post::published()->with('user')->paginate(9);
-        });
+        $posts = Post::published()->with('user')->paginate(9);
         return view('blog.index', compact('posts'));
     }
 
