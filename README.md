@@ -94,6 +94,8 @@ Deployed on a self-hosted Orange Pi 4 Pro homelab:
 - Exposed via GCP e2-micro reverse proxy over Tailscale VPN
 - SSL via Let's Encrypt (Certbot)
 
+| Caching | Response caching via spatie/laravel-responsecache (full HTML cached in Redis) |
+
 ## Author
 
 **Haniff** — [GitHub](https://github.com/haniff97)
