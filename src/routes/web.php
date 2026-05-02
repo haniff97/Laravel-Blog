@@ -4,9 +4,11 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Public blog
-Route::get('/', [PostController::class, 'index'])->name('home');
-Route::get('/blog/{post}', [PostController::class, 'show'])->name('blog.show');
+// Public blog — cache these
+Route::middleware([CacheResponse::class])->group(function () {
+    Route::get('/', [PostController::class, 'index'])->name('home');
+    Route::get('/blog/{post}', [PostController::class, 'show'])->name('blog.show');
+});
 
 // Auth routes (Breeze)
 require __DIR__.'/auth.php';
@@ -16,8 +18,8 @@ Route::get('/dashboard', function () {
     return redirect()->route('admin.posts.index');
 })->middleware(['auth'])->name('dashboard');
 
-// Admin post management
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+// Admin — never cache these
+Route::middleware(['auth', DoNotCacheResponse::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/posts', [PostController::class, 'adminIndex'])->name('posts.index');
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
