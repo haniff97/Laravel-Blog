@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Repositories\PostRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -11,9 +12,13 @@ use Spatie\ResponseCache\Facades\ResponseCache;
 
 class PostController extends Controller
 {
+    public function __construct(protected PostRepository $postRepository)
+    {
+    }
+
     public function index()
     {
-        $posts = Post::published()->with('user')->paginate(9);
+        $posts = $this->postRepository->getPublished();
         return view('blog.index', compact('posts'));
     }
 
@@ -26,10 +31,7 @@ class PostController extends Controller
 
     public function adminIndex()
     {
-        $posts = Post::where('user_id', Auth::id())
-                     ->with('user')
-                     ->orderByDesc('created_at')
-                     ->paginate(10);
+        $posts = $this->postRepository->getByUser(Auth::id());
         return view('admin.posts.index', compact('posts'));
     }
 
@@ -47,17 +49,15 @@ class PostController extends Controller
             'status'  => 'required|in:draft,published',
         ]);
 
-        $validated['slug']         = Str::slug($validated['title']) . '-' . Str::random(5);
-        $validated['user_id']      = Auth::id();
-        $validated['published_at'] = $validated['status'] === 'published' ? now() : null;
+        $validated['user_id'] = Auth::id();
 
         DB::transaction(function () use ($validated) {
-            Post::create($validated);
+            $this->postRepository->create($validated);
         });
 
         ResponseCache::clear();
+
         return redirect()->route('admin.posts.index')->with('success', 'Post created!');
-        
     }
 
     public function edit(Post $post)
@@ -77,15 +77,12 @@ class PostController extends Controller
             'status'  => 'required|in:draft,published',
         ]);
 
-        if ($validated['status'] === 'published' && !$post->published_at) {
-            $validated['published_at'] = now();
-        }
-
         DB::transaction(function () use ($post, $validated) {
-            $post->update($validated);
+            $this->postRepository->update($post, $validated);
         });
 
         ResponseCache::clear();
+
         return redirect()->route('admin.posts.index')->with('success', 'Post updated!');
     }
 
@@ -93,10 +90,12 @@ class PostController extends Controller
     {
         abort_if($post->user_id !== Auth::id(), 403);
 
-        $slug = $post->slug;
-        $post->delete();
+        DB::transaction(function () use ($post) {
+            $this->postRepository->delete($post);
+        });
 
         ResponseCache::clear();
+
         return redirect()->route('admin.posts.index')->with('success', 'Post deleted!');
     }
 
