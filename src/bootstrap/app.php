@@ -11,13 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Trust all proxies (VPS / reverse proxy fix for 419 CSRF errors)
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: '*', headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO);
+        $middleware->append(\Spatie\ResponseCache\Middlewares\CacheResponse::class);
+        $middleware->append(\Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Handle expired CSRF tokens gracefully — redirect back instead of 419 error page
-        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
-            return redirect()->back()->withInput($request->except('_token', 'password', 'password_confirmation'))
-                ->with('error', 'Your session has expired. Please try again.');
-        });
+        //
     })->create();
