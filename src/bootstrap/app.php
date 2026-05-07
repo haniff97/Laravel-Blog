@@ -15,5 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Handle expired CSRF tokens gracefully — redirect back instead of 419 error page
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->back()->withInput($request->except('_token', 'password', 'password_confirmation'))
+                ->with('error', 'Your session has expired. Please try again.');
+        });
     })->create();
