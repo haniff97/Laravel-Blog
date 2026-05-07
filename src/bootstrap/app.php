@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(\Spatie\ResponseCache\Middlewares\CacheResponse::class);
         $middleware->append(\Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class);
+	$middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

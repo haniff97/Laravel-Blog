@@ -9,3 +9,4 @@ src/storage/framework/sessions/
 src/storage/framework/views/
 src/bootstrap/cache/
 *.sqlite
+GEMINI.md
