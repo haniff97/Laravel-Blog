@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Trust all proxies (VPS / reverse proxy fix for 419 CSRF errors)
+        $middleware->trustProxies(at: '*');
+
         $middleware->append(\Spatie\ResponseCache\Middlewares\CacheResponse::class);
         $middleware->append(\Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class);
     })
