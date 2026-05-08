@@ -15,8 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
             \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
             \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO);
-        $middleware->append(\Spatie\ResponseCache\Middlewares\CacheResponse::class);
-        $middleware->append(\Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class);
+
+        // NOTE: CacheResponse and DoNotCacheResponse are applied as ROUTE-LEVEL
+        // middleware in web.php and auth.php — NOT here as global middleware.
+        // Having them global caused stale CSRF tokens on admin pages → 419 on logout.
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
