@@ -1,3 +1,14 @@
+# --- Stage 1: Build frontend assets with Node ---
+FROM node:20 AS frontend
+WORKDIR /app
+# Copy package files and install dependencies
+COPY src/package.json src/package-lock.json* ./
+RUN npm install
+# Copy the rest of the source code and build assets
+COPY src/ ./
+RUN npm run build
+
+# --- Stage 2: Final PHP image ---
 FROM php:8.4-fpm
 
 # Install system dependencies + nginx
@@ -12,6 +23,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy source code into the image
 COPY src/ /var/www/
 WORKDIR /var/www
+
+# Copy the compiled frontend assets from the Node stage
+COPY --from=frontend /app/public/build /var/www/public/build
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
