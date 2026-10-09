@@ -1,14 +1,15 @@
 @extends('layouts.app')
-
 @section('title', $post->title)
-
 @section('content')
-    <div class="max-w-3xl mx-auto">
-        <a href="{{ route('home') }}" class="text-sm text-indigo-600 hover:underline mb-6 inline-block">← Back to posts</a>
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">{{ $post->title }}</h1>
-        <p class="text-sm text-gray-400 mb-8">{{ $post->published_at->format('F j, Y') }} · by {{ $post->user->name }}</p>
-        <div class="prose prose-lg dark:prose-invert max-w-none">
-            {!! $post->rendered_content !!}
-        </div>
-    </div>
+    <article class="article-page">
+        <a href="{{ route('home') }}" class="text-link back-link">← All stories</a>
+        <header class="article-header">
+            <p class="eyebrow">THE JOURNAL</p>
+            <h1>{{ $post->title }}</h1>
+            @if($post->excerpt)<p class="article-excerpt">{{ $post->excerpt }}</p>@endif
+            <div class="article-byline"><span class="author-avatar" aria-hidden="true">{{ Str::upper(Str::substr($post->user->name, 0, 1)) }}</span><div><span class="author-name">{{ $post->user->name }}</span><p><time datetime="{{ $post->published_at->toDateString() }}">{{ $post->published_at->format('F j, Y') }}</time> · {{ max(1, (int) ceil(str_word_count(strip_tags($post->rendered_content)) / 200)) }} min read</p></div></div>
+        </header>
+        <div class="prose prose-lg max-w-none article-content">{!! $post->rendered_content !!}</div>
+        <div class="article-end"><span aria-hidden="true">✳</span><a href="{{ route('home') }}" class="text-link">Back to the journal →</a></div>
+    </article>
 @endsection

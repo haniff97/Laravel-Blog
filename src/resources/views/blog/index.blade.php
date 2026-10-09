@@ -1,22 +1,29 @@
 @extends('layouts.app')
-
-@section('title', 'Blog')
-
+@section('title', 'Journal')
 @section('content')
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Latest Posts</h1>
-
-    @if($posts->isEmpty())
-        <p class="text-gray-500 dark:text-gray-400">No posts yet. Check back soon!</p>
-    @else
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($posts as $post)
-            <a href="{{ route('blog.show', $post) }}" class="block bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition p-6">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $post->title }}</h2>
-                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">{{ $post->excerpt ?? Str::limit(strip_tags($post->rendered_content), 100) }}</p>
-                <span class="text-xs text-gray-400">{{ $post->published_at->diffForHumans() }}</span>
-            </a>
-            @endforeach
-        </div>
-        <div class="mt-8">{{ $posts->links() }}</div>
-    @endif
+    <section class="journal-intro">
+        <p class="eyebrow"><span class="status-dot"></span> THE JOURNAL</p>
+        <h1>Good ideas deserve<br>a little <em>space.</em></h1>
+        <p class="intro-copy">Thoughts, discoveries, and stories worth sharing.<br>A small corner of the internet to slow down and read.</p>
+        <a href="#latest" class="text-link">Explore the latest <span aria-hidden="true">↓</span></a>
+        <span class="intro-decoration" aria-hidden="true">✳</span>
+    </section>
+    <section id="latest" class="posts-section" aria-labelledby="latest-heading">
+        <div class="section-heading"><h2 id="latest-heading">Latest stories</h2><span>{{ $posts->total() }} {{ Str::plural('story', $posts->total()) }}</span></div>
+        @if($posts->isEmpty())
+            <div class="empty-state"><span class="empty-symbol" aria-hidden="true">✳</span><h3>A fresh page.</h3><p>There are no stories here yet. Check back soon for something new.</p>@auth<a href="{{ route('admin.posts.create') }}" class="text-link">Write your first story →</a>@endauth</div>
+        @else
+            <div class="story-grid">
+                @foreach($posts as $post)
+                    <a href="{{ route('blog.show', $post) }}" class="story-card">
+                        <div class="story-meta"><span>JOURNAL</span><time datetime="{{ $post->published_at->toDateString() }}">{{ $post->published_at->format('M j, Y') }}</time></div>
+                        <h3>{{ $post->title }}</h3>
+                        <p>{{ $post->excerpt ?? Str::limit(strip_tags($post->rendered_content), 160) }}</p>
+                        <div class="story-bottom"><span>{{ max(1, (int) ceil(str_word_count(strip_tags($post->rendered_content)) / 200)) }} min read</span><span class="story-arrow" aria-hidden="true">↗</span></div>
+                    </a>
+                @endforeach
+            </div>
+            <div class="pagination">{{ $posts->links() }}</div>
+        @endif
+    </section>
 @endsection

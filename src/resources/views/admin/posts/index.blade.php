@@ -3,12 +3,13 @@
 @section('title', 'Admin - Posts')
 
 @section('content')
+<div class="admin-page">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Posts</h1>
+        <div><p class="eyebrow">YOUR WRITING SPACE</p><h1 class="text-2xl font-bold text-gray-900 dark:text-white">Posts</h1><p class="admin-description">Create, refine, and share your stories.</p></div>
         <a href="{{ route('admin.posts.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">+ New Post</a>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300 uppercase text-xs">
                 <tr>
@@ -43,4 +44,5 @@
         </table>
     </div>
     <div class="mt-4">{{ $posts->links() }}</div>
+</div>
 @endsection

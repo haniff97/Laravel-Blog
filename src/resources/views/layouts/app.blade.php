@@ -1,35 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'My Blog')</title>
+    <title>@yield('title', 'My Blog') · My Blog</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <nav class="bg-white dark:bg-gray-800 shadow mb-8">
-        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="{{ route('home') }}" class="text-xl font-bold text-gray-900 dark:text-white">My Blog</a>
-            <div class="flex gap-4 items-center">
+<body class="journal-shell">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <header class="site-header">
+        <nav class="site-nav" aria-label="Main navigation">
+            <a href="{{ route('home') }}" class="brand"><span class="brand-mark" aria-hidden="true">m.</span> My Blog</a>
+            <div class="nav-actions">
+                <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home', 'blog.show') ? 'is-active' : '' }}">Journal</a>
                 @auth
-                    <a href="{{ route('admin.posts.index') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900">Admin</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900">Logout</button>
-                    </form>
+                    <a href="{{ route('admin.posts.index') }}" class="nav-item {{ request()->routeIs('admin.*') ? 'is-active' : '' }}">Manage posts</a>
+                    <form method="POST" action="{{ route('logout') }}">@csrf<button class="nav-item">Sign out</button></form>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900">Login</a>
+                    <a href="{{ route('login') }}" class="nav-login">Sign in <span aria-hidden="true">↗</span></a>
                 @endauth
             </div>
-        </div>
-    </nav>
-
-    <main class="max-w-5xl mx-auto px-4 pb-16">
+        </nav>
+    </header>
+    <main id="main-content" class="site-main">
         @if(session('success'))
-            <div class="bg-green-100 text-green-800 px-4 py-2 rounded mb-6">{{ session('success') }}</div>
+            <div role="status" class="success-message">{{ session('success') }}</div>
         @endif
-
         @yield('content')
     </main>
+    <footer class="site-footer"><a href="{{ route('home') }}" class="footer-brand">My Blog</a><span>A space for ideas, stories, and everything in between.</span><span>© {{ date('Y') }}</span></footer>
 </body>
 </html>

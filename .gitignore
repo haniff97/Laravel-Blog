@@ -10,3 +10,5 @@ src/storage/framework/views/
 src/bootstrap/cache/
 *.sqlite
 GEMINI.md
+.DS_Store
+
