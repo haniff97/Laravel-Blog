@@ -16,8 +16,6 @@
                 @auth
                     <a href="{{ route('admin.posts.index') }}" class="nav-item {{ request()->routeIs('admin.*') ? 'is-active' : '' }}">Manage posts</a>
                     <form method="POST" action="{{ route('logout') }}">@csrf<button class="nav-item">Sign out</button></form>
-                @else
-                    <a href="{{ route('login') }}" class="nav-login">Sign in <span aria-hidden="true">↗</span></a>
                 @endauth
             </div>
         </nav>
