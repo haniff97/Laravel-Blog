@@ -288,6 +288,14 @@
     overflow-x:auto}
 .article-content img {
     border-radius:8px}
+.article-content img[src^="/images/receipt-tracker/"] {
+    display:block;
+    width:100%;
+    max-width:280px;
+    height:auto;
+    margin-inline:auto;
+    border:1px solid #dfe3d7;
+    border-radius:4px}
 .article-end {
     margin-top:50px;
     padding-top:30px;

@@ -34,6 +34,19 @@ Internet → GCP Nginx (reverse proxy) → Tailscale → Orange Pi :8085 → Doc
 - 🔄 DB transactions on write operations
 - 🚫 N+1 query prevention via eager loading
 
+## Receipt Tracker Article
+
+The article source is `src/resources/content/receipt-tracker.md`, with five screenshots in `src/public/images/receipt-tracker/`.
+To import it into an installation's database, run from `src` using an existing author's user ID:
+
+```bash
+php artisan blog:import-receipt-tracker --author=1
+```
+
+The command publishes the post at `/blog/receipt-tracker` and clears the response cache.
+It preserves existing posts and skips the import if that slug already exists, including archived posts.
+After import, edit the article through the normal post editor. Database content must be imported separately on another deployment; committing these files alone does not publish the post there.
+
 ## Core Principles Applied
 
 | Principle | Implementation |
