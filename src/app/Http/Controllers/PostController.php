@@ -40,6 +40,14 @@ class PostController extends Controller
         return view('admin.posts.create');
     }
 
+    public function preview(Request $request)
+    {
+        $validated = $request->validate(['content' => 'nullable|string|max:200000']);
+        $post = new Post(['content' => $validated['content'] ?? '']);
+
+        return response()->json(['html' => $post->rendered_content]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostImageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Spatie\ResponseCache\Middlewares\CacheResponse;
@@ -13,6 +14,9 @@ Route::middleware([CacheResponse::class])->group(function () {
 });
 
 // Auth routes (Breeze)
+Route::get('/media/posts/{user}/{filename}', [PostImageController::class, 'show'])
+    ->whereNumber('user')->where('filename', '[A-Za-z0-9]+\.(jpg|jpeg|png|webp|gif)')->name('blog.images');
+
 require __DIR__.'/auth.php';
 
 // Dashboard
@@ -24,6 +28,8 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth', DoNotCacheResponse::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/posts', [PostController::class, 'adminIndex'])->name('posts.index');
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/post-images', [PostImageController::class, 'store'])->middleware('throttle:30,1')->name('posts.images');
+    Route::post('/posts/preview', [PostController::class, 'preview'])->middleware('throttle:60,1')->name('posts.preview');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
     Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');

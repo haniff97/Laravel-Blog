@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=h1">
     <title>@yield('title', 'My Blog') · My Blog</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -10,7 +11,7 @@
     <a href="#main-content" class="skip-link">Skip to content</a>
     <header class="site-header">
         <nav class="site-nav" aria-label="Main navigation">
-            <a href="{{ route('home') }}" class="brand"><span class="brand-mark" aria-hidden="true">m.</span> My Blog</a>
+            <a href="{{ route('home') }}" class="brand"><span class="brand-mark" aria-hidden="true">h.</span> My Blog</a>
             <div class="nav-actions">
                 <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home', 'blog.show') ? 'is-active' : '' }}">Journal</a>
                 @auth
